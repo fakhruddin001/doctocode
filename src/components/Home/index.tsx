@@ -5,12 +5,12 @@ import Link from "next/link";
 import CustomSelect from "./Components/CustomSelect";
 import UploadFileInput from "./Components/UploadFileInput";
 import Loader from "@/components/Common/Loader";
+import axios from "axios";
 
 const Hero = () => {
   const [selectedLanguage, setSelectedLanguageState] = useState("");
   const [projectName, setProjectNameState] = useState("");
   const [file1, setFile1State] = useState<File | null>(null);
-  const [file2, setFile2State] = useState<File | null>(null);
   const [loadingGenerate, setLoadingGenerate] = useState(false);
   const [loadingDownload, setLoadingDownload] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -21,7 +21,6 @@ const Hero = () => {
     language?: string;
     name?: string;
     file1?: string;
-    file2?: string;
   }>({});
 
   // Watchers to clear errors when value is set
@@ -43,12 +42,6 @@ const Hero = () => {
       setErrors((prev) => ({ ...prev, file1: undefined }));
     }
   };
-  const setFile2 = (file: File | null) => {
-    setFile2State(file);
-    if (file && errors.file2) {
-      setErrors((prev) => ({ ...prev, file2: undefined }));
-    }
-  };
 
   const handleGenerateProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,7 +50,6 @@ const Hero = () => {
       language?: string;
       name?: string;
       file1?: string;
-      file2?: string;
     } = {};
     if (!selectedLanguage) {
       newErrors.language = "Please select a language.";
@@ -71,26 +63,35 @@ const Hero = () => {
       newErrors.file1 = "PCD file is required.";
       valid = false;
     }
-    if (!file2) {
-      newErrors.file2 = "Code Standard file is required.";
-      valid = false;
-    }
+
     setErrors(newErrors);
     if (!valid) return;
     setLoadingGenerate(true);
     setFormSubmitted(false);
     setProjectGenerated(false);
-    // Simulate form processing
-    setTimeout(() => {
+
+    const formData = new FormData();
+    file1 && formData.append("file", file1);
+
+    try {
+      const response = await axios.post(
+        `https://localhost:7043/Builder?ProjectName=${projectName}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       setLoadingGenerate(false);
       setFormSubmitted(true);
       setProjectGenerated(true);
       setShowSuccessModal(true);
-      // Store a random key in sessionStorage
-      const randomKey = Math.random().toString(36).substring(2, 15);
-      window.sessionStorage.setItem("projectKey", randomKey);
-    }, 1500);
-    // Here you can add your actual form submission logic
+      window.sessionStorage.setItem("projectKey", response.data);
+      console.log("Response:", response.data);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
   };
 
   const handleDownloadProject = async () => {
@@ -132,8 +133,12 @@ const Hero = () => {
             </div>
 
             <p className="text-black/70 text-xl font-semibold text-center mb-4 drop-shadow-sm">
-              Transform your documentation into<br />
-              <span className="text-primary font-extrabold">production-ready code</span> in seconds.
+              Transform your documentation into
+              <br />
+              <span className="text-primary font-extrabold">
+                production-ready code
+              </span>{" "}
+              in seconds.
             </p>
           </div>
 
@@ -205,19 +210,6 @@ const Hero = () => {
                     {/* Info icon removed for cleaner UI */}
                     <span className="text-red-500 text-xs mt-1 min-h-[20px] block">
                       {errors.file1 || "\u00A0"}
-                    </span>
-                  </div>
-                  <div className="flex flex-col relative w-full">
-                    {/* <label className="font-semibold text-base text-gray-700 mb-2 block">Code Standard File</label> */}
-                    <UploadFileInput
-                      label={file2 ? file2.name : "Upload Code Standard File"}
-                      inputClassName="w-full h-12 rounded-xl"
-                      onChange={(e) => setFile2(e.target.files?.[0] || null)}
-                      aria-label="Upload Code Standard File"
-                    />
-                    {/* Info icon removed for cleaner UI */}
-                    <span className="text-red-500 text-xs mt-1 min-h-[20px] block">
-                      {errors.file2 || "\u00A0"}
                     </span>
                   </div>
                 </div>
@@ -314,8 +306,9 @@ const Hero = () => {
       {/* Footer / Tip Section */}
       <footer className="w-full text-center py-6 bg-white border-t border-gray-200 mt-auto shadow-inner">
         <span className="text-gray-500 text-sm">
-          <span className="font-medium text-primary">Tip:</span> You can always download your generated project after signing in.
-          &nbsp;|&nbsp; <span className="font-semibold">Version 1.0.0</span>
+          <span className="font-medium text-primary">Tip:</span> You can always
+          download your generated project after signing in. &nbsp;|&nbsp;{" "}
+          <span className="font-semibold">Version 1.0.0</span>
         </span>
       </footer>
     </section>

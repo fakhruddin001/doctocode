@@ -12,7 +12,7 @@
     "@iconify/icons-ion": "^1.2.10",
     "@iconify/react": "^5.0.1",
     "aos": "^2.3.4",
-    "axios": "^1.7.2",
+    "axios": "^1.11.0",
     "date-fns": "^3.4.0",
     "framer-motion": "^11.11.9",
     "gray-matter": "^4.0.3",
