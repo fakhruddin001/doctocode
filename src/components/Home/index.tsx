@@ -71,7 +71,7 @@ const Hero = () => {
     setProjectGenerated(false);
 
     const formData = new FormData();
-    file1 && formData.append("file", file1);
+    file1 && formData.append("docFile", file1);
 
     try {
       const response = await axios.post(
