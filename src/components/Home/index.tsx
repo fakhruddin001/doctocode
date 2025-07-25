@@ -99,15 +99,31 @@ const Hero = () => {
   const handleDownloadProject = async () => {
     setLoadingDownload(true);
     const response = await axios.get(
-      `${apiUrl}Download/folder?folderPath=C:\\Data\\demo`
+      `${apiUrl}Download/folder?folderPath=C:\\Data\\demo` ,{
+                responseType: "blob", // Important for binary data
+            }
     );
     console.log(response.data);
+    const contentDisposition = response.headers["content-disposition"];
+    const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
+    const fileName = fileNameMatch ? fileNameMatch[1] : "downloadedFile";
+    // Create a temporary anchor element to trigger the download
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "file.zip");
+    // Setting filename received in response
+    link.setAttribute("download", `${fileName}.zip`);
     document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+
+    // const url = window.URL.createObjectURL(new Blob([response.data]));
+    // console.log("url", url);
+    // const link = document.createElement("a");
+    // link.href = url;
+    // link.setAttribute("download", "demo.zip");
+    // document.body.appendChild(link);
+    // link.click();
 
     // Clean up the temporary anchor element and URL
     link?.parentNode?.removeChild(link);
