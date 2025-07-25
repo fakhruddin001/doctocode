@@ -17,6 +17,8 @@ const Hero = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [projectGenerated, setProjectGenerated] = useState(false);
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   const [errors, setErrors] = useState<{
     language?: string;
     name?: string;
@@ -75,7 +77,7 @@ const Hero = () => {
 
     try {
       const response = await axios.post(
-        `https://localhost:7043/Builder?ProjectName=${projectName}`,
+        `${apiUrl}Builder?ProjectName=${projectName}`,
         formData,
         {
           headers: {
@@ -96,15 +98,20 @@ const Hero = () => {
 
   const handleDownloadProject = async () => {
     setLoadingDownload(true);
-    const response = await axios.get("https://localhost:7043/Download/folder?folderPath=C:\\Data\\UserManagement");
-    conosle.log(response);
-    const blob = response.data.blob();
-    const url = window.URL.createObjectURL(blob);
-    a.href = url; 
-    a.download = "folder.zip";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    const response = await axios.get(
+      `${apiUrl}Download/folder?folderPath=C:\\Data\\demo`
+    );
+    console.log(response.data);
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "file.zip");
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up the temporary anchor element and URL
+    link?.parentNode?.removeChild(link);
+    window.URL.revokeObjectURL(url);
     setLoadingDownload(false);
   };
 
