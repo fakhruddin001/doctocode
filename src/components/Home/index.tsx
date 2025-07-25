@@ -96,11 +96,16 @@ const Hero = () => {
 
   const handleDownloadProject = async () => {
     setLoadingDownload(true);
-    // Simulate download
-    setTimeout(() => {
-      setLoadingDownload(false);
-      // Add your actual download logic here
-    }, 1200);
+    const response = await axios.get("https://localhost:7043/Download/folder?folderPath=C:\\Data\\UserManagement");
+    conosle.log(response);
+    const blob = response.data.blob();
+    const url = window.URL.createObjectURL(blob);
+    a.href = url; 
+    a.download = "folder.zip";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setLoadingDownload(false);
   };
 
   return (
