@@ -8,6 +8,7 @@ import UploadFileInput from "./Components/UploadFileInput";
 import Loader from "@/components/Common/Loader";
 import axios from "axios";
 import CodeTypingAnimation from './Components/CodeTypingAnimation';
+import LoadingButton from './Components/LoadingButton';
 
 const Hero = () => {
   const [selectedLanguage, setSelectedLanguageState] = useState("");
@@ -211,7 +212,7 @@ const Hero = () => {
           ease: "easeOut"
         }}
       >
-        {/* Code editor - EXACT same size as original image */}
+        {/* Code editor*/}
         <div className="bg-gray-900 rounded-3xl shadow-2xl border-4 border-white p-4 w-[420px] h-[400px] relative overflow-hidden">
           {/* Editor header */}
           <div className="flex justify-between items-center mb-3">
@@ -366,8 +367,8 @@ const Hero = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-row gap-4 items-center justify-center mt-8">
-                <button
+              <div className="flex flex-row gap-4 items-center justify-center mt-5">
+                {/* <button
                   type="submit"
                   className="bg-green-600 py-3 px-3 rounded-lg text-base border border-green-600 hover:bg-green-700 hover:text-white transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 shadow"
                   disabled={loadingGenerate}
@@ -381,8 +382,9 @@ const Hero = () => {
                       </span>
                     </span>
                   )}
-                </button>
-                <button
+                </button> */}
+                <LoadingButton  type="submit" loading={loadingGenerate} loadingText='Generating' className='ml-2 flex items-center'>Generate Code</LoadingButton>
+                {/* <button
                   type="button"
                   className={`py-3 px-6 rounded-lg text-base border transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 shadow
                     ${
@@ -393,8 +395,9 @@ const Hero = () => {
                   disabled={!projectGenerated || loadingDownload}
                   onClick={handleDownloadProject}
                   aria-busy={loadingDownload}
-                >
-                  Download Project
+                > */}
+                <LoadingButton  type="button" buttonColor="grey" disabled={!projectGenerated || loadingDownload} loadingText='Downloading' className='ml-2 flex items-center' onClick={handleDownloadProject}>Download Project</LoadingButton>
+                  {/* Download Project
                   {loadingDownload && (
                     <span className="ml-2 flex items-center animate-spin">
                       <span className="w-5 h-5 flex items-center justify-center">
@@ -402,7 +405,7 @@ const Hero = () => {
                       </span>
                     </span>
                   )}
-                </button>
+                </button> */}
               </div>
 
               {/* Success Modal Popup */}
