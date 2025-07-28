@@ -1,4 +1,5 @@
 "use client";
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,6 +7,7 @@ import CustomSelect from "./Components/CustomSelect";
 import UploadFileInput from "./Components/UploadFileInput";
 import Loader from "@/components/Common/Loader";
 import axios from "axios";
+import CodeTypingAnimation from './Components/CodeTypingAnimation';
 
 const Hero = () => {
   const [selectedLanguage, setSelectedLanguageState] = useState("");
@@ -146,17 +148,136 @@ const Hero = () => {
           <div className="col-span-6 flex flex-col items-center justify-center">
             <div className="w-full flex justify-center mb-8">
               <div className="relative group">
-                <Image
-                  src="/images/banner/banner-image.jpg"
-                  alt="Document to Code Illustration"
-                  width={420}
-                  height={220}
-                  className="rounded-3xl shadow-2xl transition-transform duration-300 group-hover:scale-105 object-cover bg-gray-100 border-4 border-white"
-                  onError={(e) => {
-                    e.currentTarget.src = "/images/logo/logo.svg";
-                  }}
-                  priority
-                />
+                <AnimatePresence>
+  {loadingGenerate ? (
+    <motion.div className="relative w-[450px] h-[450px] flex items-center justify-center">
+      {/* Original image that transforms */}
+      <motion.div
+        className="absolute"
+        initial={{ scale: 1, opacity: 1 }}
+        animate={{ 
+          scale: [1, 0.8, 0.2],
+          opacity: [1, 0.8, 0],
+          y: [0, -20, -40]
+        }}
+        transition={{ 
+          duration: 1.5,
+          ease: "easeInOut"
+        }}
+      >
+        <Image
+          src="/images/banner/banner-image.jpg"
+          alt="Document to Code Illustration"
+          width={420}
+          height={220}
+          className="rounded-3xl shadow-2xl object-cover bg-gray-100 border-4 border-white"
+          onError={(e) => {
+            e.currentTarget.src = "/images/logo/logo.svg";
+          }}
+          priority
+        />
+      </motion.div>
+      
+      {/* Transformation effect */}
+      <motion.div
+        className="absolute"
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ 
+          opacity: [0, 1, 1, 0],
+          scale: [0, 1, 1, 0],
+          rotate: [0, 0, 360, 360]
+        }}
+        transition={{ 
+          duration: 2,
+          times: [0, 0.3, 0.7, 1],
+          ease: "easeInOut"
+        }}
+      >
+        <div className="text-6xl">⚡</div>
+      </motion.div>
+      
+      {/* Code editor that appears - FIXED SIZE */}
+      <motion.div
+        className="absolute inset-0 flex flex-col justify-center items-center"
+        initial={{ scale: 0, opacity: 0, y: 40 }}
+        animate={{ 
+          scale: [0, 0, 1.1, 1],
+          opacity: [0, 0, 1, 1],
+          y: [40, 40, 0, 0]
+        }}
+        transition={{ 
+          duration: 2,
+          times: [0, 0.5, 0.8, 1],
+          ease: "easeOut"
+        }}
+      >
+        {/* Code editor - EXACT same size as original image */}
+        <div className="bg-gray-900 rounded-3xl shadow-2xl border-4 border-white p-4 w-[420px] h-[400px] relative overflow-hidden">
+          {/* Editor header */}
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex space-x-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            </div>
+            <div className="text-gray-400 text-xs font-mono">main.cs</div>
+          </div>
+          
+          {/* Code content with typing effect */}
+          <div className="h-[calc(100%-3rem)] overflow-hidden">
+            {/* Adjusted height calculation to account for header and padding */}
+            <CodeTypingAnimation />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Loading dots */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 3, duration: 0.5 }}
+        className="absolute -bottom-6 flex space-x-2"
+      >
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="w-3 h-3 bg-blue-500 rounded-full"
+            animate={{ 
+              scale: [1, 1.5, 1],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{ 
+              duration: 1,
+              repeat: Infinity,
+              delay: i * 0.2,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </motion.div>
+    </motion.div>
+  ) : (
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.9, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="group"
+    >
+      <Image
+        src="/images/banner/banner-image.jpg"
+        alt="Document to Code Illustration"
+        width={420}
+        height={220}
+        className="rounded-3xl shadow-2xl transition-transform duration-300 group-hover:scale-105 object-cover bg-gray-100 border-4 border-white"
+        onError={(e) => {
+          e.currentTarget.src = "/images/logo/logo.svg";
+        }}
+        priority
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-32 h-2 bg-gradient-to-r from-primary to-blue-400 rounded-full opacity-60 blur-sm" />
               </div>
             </div>
@@ -248,7 +369,7 @@ const Hero = () => {
               <div className="flex flex-row gap-4 items-center justify-center mt-8">
                 <button
                   type="submit"
-                  className="bg-green-600 py-3 px-6 rounded-lg text-base border border-green-600 hover:bg-green-700 hover:text-white transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 shadow"
+                  className="bg-green-600 py-3 px-3 rounded-lg text-base border border-green-600 hover:bg-green-700 hover:text-white transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 shadow"
                   disabled={loadingGenerate}
                   aria-busy={loadingGenerate}
                 >
