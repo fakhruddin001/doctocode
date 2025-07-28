@@ -98,15 +98,16 @@ const Hero = () => {
 
   const handleDownloadProject = async () => {
     setLoadingDownload(true);
+    const savedPath=`Download/folder?folderPath=C:\\Data\\${projectName}`
     const response = await axios.get(
-      `${apiUrl}Download/folder?folderPath=C:\\Data\\demo` ,{
+      `${apiUrl}${savedPath}` ,{
                 responseType: "blob", // Important for binary data
             }
     );
-    console.log(response.data);
+    // console.log(response.data);
     const contentDisposition = response.headers["content-disposition"];
-    const fileNameMatch = contentDisposition?.match(/filename="(.+)"/);
-    const fileName = fileNameMatch ? fileNameMatch[1] : "downloadedFile";
+    const fileName = projectName;
+    console.log(`fileName:${fileName}`)
     // Create a temporary anchor element to trigger the download
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
@@ -244,7 +245,7 @@ const Hero = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-row gap-4 items-center justify-end mt-8">
+              <div className="flex flex-row gap-4 items-center justify-center mt-8">
                 <button
                   type="submit"
                   className="bg-green-600 py-3 px-6 rounded-lg text-base border border-green-600 hover:bg-green-700 hover:text-white transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 shadow"
