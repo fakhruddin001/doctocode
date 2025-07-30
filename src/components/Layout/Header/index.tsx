@@ -55,9 +55,13 @@ const Header: React.FC = () => {
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     document.addEventListener("mousedown", handleClickOutside);
+    // Listen for custom event to open Sign In modal from anywhere
+    const handleOpenLoginModal = () => setIsSignInOpen(true);
+    window.addEventListener("open-login-modal", handleOpenLoginModal);
     return () => {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("open-login-modal", handleOpenLoginModal);
     };
   }, [navbarOpen, isSignInOpen, isSignUpOpen]);
 
@@ -71,21 +75,16 @@ const Header: React.FC = () => {
 
   return (
     <header
-      className={`fixed top-0 z-40 w-full transition-all duration-300 ${sticky
-        ? "shadow-2xl bg-gradient-to-r from-[#f8fafc] via-[#e0f2fe] to-[#f0fdf4] dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 border-b border-blue-100/60 py-1"
-        : "shadow-lg bg-gradient-to-r from-[#f8fafc]/80 via-[#e0f2fe]/80 to-[#f0fdf4]/80 dark:from-gray-800/80 dark:via-gray-900/80 dark:to-gray-950/80 py-3 border-b border-blue-100/40"}
-      `}
+      className={`fixed top-0 left-0 w-full z-50 bg-white py-2 transition-all duration-300 ease-in-out ${
+        sticky ? "bg-white/90 backdrop-blur-lg shadow-lg" : "bg-transparent"
+      }`}
+      ref={navbarRef}
       style={{
-        background: sticky
-          ? 'linear-gradient(120deg, rgba(248,250,252,0.95) 0%, rgba(224,242,254,0.95) 60%, rgba(240,253,244,0.95) 100%)'
-          : 'linear-gradient(120deg, rgba(248,250,252,0.7) 0%, rgba(224,242,254,0.7) 60%, rgba(240,253,244,0.7) 100%)',
-        boxShadow: sticky
-          ? '0 8px 32px 0 rgba(31, 38, 135, 0.10), 0 1.5px 8px 0 rgba(34,197,94,0.10)'
-          : '0 4px 24px 0 rgba(31, 38, 135, 0.08)',
-        backdropFilter: 'blur(16px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-        borderRadius: '0 0 1.5rem 1.5rem',
-        border: sticky ? '1.5px solid #bae6fd' : '1px solid #e0f2fe',
+        boxShadow: sticky ? "0 2px 10px rgba(0, 0, 0, 0.1)" : "none",
+      borderBottom: "1px solid transparent", /* Or desired thickness */
+      borderImage: "linear-gradient(to right, transparent, gray, transparent) 2",
+      /* Adjust colors and direction as needed */
+    
       }}
     >
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 rounded-lg min-h-[52px] relative">
@@ -132,7 +131,7 @@ const Header: React.FC = () => {
                   />
                 </button>
                 <div className="mt-6">
-                  <Signin />
+                  <Signin  onClose={() => setIsSignInOpen(false)} />
                 </div>
               </div>
             </div>

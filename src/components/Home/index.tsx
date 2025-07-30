@@ -1,14 +1,12 @@
 "use client";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import CustomSelect from "./Components/CustomSelect";
 import UploadFileInput from "./Components/UploadFileInput";
-import Loader from "@/components/Common/Loader";
 import axios from "axios";
-import CodeTypingAnimation from './Components/CodeTypingAnimation';
-import LoadingButton from './Components/LoadingButton';
+import CodeTypingAnimation from "./Components/CodeTypingAnimation";
+import LoadingButton from "./Components/LoadingButton";
 
 const Hero = () => {
   const [selectedLanguage, setSelectedLanguageState] = useState("");
@@ -71,6 +69,19 @@ const Hero = () => {
 
     setErrors(newErrors);
     if (!valid) return;
+
+    // Check isLoggedIn in localStorage
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!isLoggedIn || isLoggedIn === "false") {
+      // Open login popup instead of generating the project
+      if (typeof window !== "undefined") {
+        // Try to trigger the login modal if available
+        const loginEvent = new CustomEvent("open-login-modal");
+        window.dispatchEvent(loginEvent);
+      }
+      return;
+    }
+
     setLoadingGenerate(true);
     setFormSubmitted(false);
     setProjectGenerated(false);
@@ -101,33 +112,20 @@ const Hero = () => {
 
   const handleDownloadProject = async () => {
     setLoadingDownload(true);
-    const savedPath=`Download/folder?folderPath=C:\\Data\\${projectName}`
-    const response = await axios.get(
-      `${apiUrl}${savedPath}` ,{
-                responseType: "blob", // Important for binary data
-            }
-    );
-    // console.log(response.data);
-    const contentDisposition = response.headers["content-disposition"];
+    const savedPath = `Download/folder?folderPath=C:\\Data\\${projectName}`;
+    const response = await axios.get(`${apiUrl}${savedPath}`, {
+      responseType: "blob",
+    });
+
     const fileName = projectName;
-    console.log(`fileName:${fileName}`)
     // Create a temporary anchor element to trigger the download
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
-    // Setting filename received in response
     link.setAttribute("download", `${fileName}.zip`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    // const url = window.URL.createObjectURL(new Blob([response.data]));
-    // console.log("url", url);
-    // const link = document.createElement("a");
-    // link.href = url;
-    // link.setAttribute("download", "demo.zip");
-    // document.body.appendChild(link);
-    // link.click();
 
     // Clean up the temporary anchor element and URL
     link?.parentNode?.removeChild(link);
@@ -139,146 +137,158 @@ const Hero = () => {
     <section
       id="home-section"
       className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-blue-50 relative"
+      style={{
+        minHeight: "100vh",
+        backgroundImage: "url('/images/banner/bg-light-6.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
     >
+      
       {/* Decorative Accent */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-primary/10 to-blue-200/10 blur-2xl z-0 pointer-events-none" />
       {/* Main Section */}
+      
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-2 pt-36 pb-10 flex-1 flex flex-col justify-center relative z-10">
+        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Illustration & Slogan */}
           <div className="col-span-6 flex flex-col items-center justify-center">
             <div className="w-full flex justify-center mb-8">
               <div className="relative group">
                 <AnimatePresence>
-  {loadingGenerate ? (
-    <motion.div className="relative w-[450px] h-[450px] flex items-center justify-center">
-      {/* Original image that transforms */}
-      <motion.div
-        className="absolute"
-        initial={{ scale: 1, opacity: 1 }}
-        animate={{ 
-          scale: [1, 0.8, 0.2],
-          opacity: [1, 0.8, 0],
-          y: [0, -20, -40]
-        }}
-        transition={{ 
-          duration: 1.5,
-          ease: "easeInOut"
-        }}
-      >
-        <Image
-          src="/images/banner/banner-image.jpg"
-          alt="Document to Code Illustration"
-          width={420}
-          height={220}
-          className="rounded-3xl shadow-2xl object-cover bg-gray-100 border-4 border-white"
-          onError={(e) => {
-            e.currentTarget.src = "/images/logo/logo.svg";
-          }}
-          priority
-        />
-      </motion.div>
-      
-      {/* Transformation effect */}
-      <motion.div
-        className="absolute"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ 
-          opacity: [0, 1, 1, 0],
-          scale: [0, 1, 1, 0],
-          rotate: [0, 0, 360, 360]
-        }}
-        transition={{ 
-          duration: 2,
-          times: [0, 0.3, 0.7, 1],
-          ease: "easeInOut"
-        }}
-      >
-        <div className="text-6xl">⚡</div>
-      </motion.div>
-      
-      {/* Code editor that appears - FIXED SIZE */}
-      <motion.div
-        className="absolute inset-0 flex flex-col justify-center items-center"
-        initial={{ scale: 0, opacity: 0, y: 40 }}
-        animate={{ 
-          scale: [0, 0, 1.1, 1],
-          opacity: [0, 0, 1, 1],
-          y: [40, 40, 0, 0]
-        }}
-        transition={{ 
-          duration: 2,
-          times: [0, 0.5, 0.8, 1],
-          ease: "easeOut"
-        }}
-      >
-        {/* Code editor*/}
-        <div className="bg-gray-900 rounded-3xl shadow-2xl border-4 border-white p-4 w-[420px] h-[400px] relative overflow-hidden">
-          {/* Editor header */}
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            </div>
-            <div className="text-gray-400 text-xs font-mono">main.cs</div>
-          </div>
-          
-          {/* Code content with typing effect */}
-          <div className="h-[calc(100%-3rem)] overflow-hidden">
-            {/* Adjusted height calculation to account for header and padding */}
-            <CodeTypingAnimation />
-          </div>
-        </div>
-      </motion.div>
+                  {loadingGenerate ? (
+                    <motion.div className="relative w-[450px] h-[450px] flex items-center justify-center">
+                      {/* Original image that transforms */}
+                      <motion.div
+                        className="absolute"
+                        initial={{ scale: 1, opacity: 1 }}
+                        animate={{
+                          scale: [1, 0.8, 0.2],
+                          opacity: [1, 0.8, 0],
+                          y: [0, -20, -40],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Image
+                          src="/images/banner/banner-image.jpg"
+                          alt="Document to Code Illustration"
+                          width={420}
+                          height={220}
+                          className="rounded-3xl shadow-2xl object-cover bg-gray-100 border-4 border-white"
+                          onError={(e) => {
+                            e.currentTarget.src = "/images/logo/logo.svg";
+                          }}
+                          priority
+                        />
+                      </motion.div>
 
-      {/* Loading dots */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 3, duration: 0.5 }}
-        className="absolute -bottom-6 flex space-x-2"
-      >
-        {[...Array(3)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="w-3 h-3 bg-blue-500 rounded-full"
-            animate={{ 
-              scale: [1, 1.5, 1],
-              opacity: [0.5, 1, 0.5]
-            }}
-            transition={{ 
-              duration: 1,
-              repeat: Infinity,
-              delay: i * 0.2,
-              ease: "easeInOut"
-            }}
-          />
-        ))}
-      </motion.div>
-    </motion.div>
-  ) : (
-    <motion.div
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.9, opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="group"
-    >
-      <Image
-        src="/images/banner/banner-image.jpg"
-        alt="Document to Code Illustration"
-        width={420}
-        height={220}
-        className="rounded-3xl shadow-2xl transition-transform duration-300 group-hover:scale-105 object-cover bg-gray-100 border-4 border-white"
-        onError={(e) => {
-          e.currentTarget.src = "/images/logo/logo.svg";
-        }}
-        priority
-      />
-    </motion.div>
-  )}
-</AnimatePresence>
+                      {/* Transformation effect */}
+                      <motion.div
+                        className="absolute"
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{
+                          opacity: [0, 1, 1, 0],
+                          scale: [0, 1, 1, 0],
+                          rotate: [0, 0, 360, 360],
+                        }}
+                        transition={{
+                          duration: 2,
+                          times: [0, 0.3, 0.7, 1],
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <div className="text-6xl">⚡</div>
+                      </motion.div>
+
+                      {/* Code editor that appears - FIXED SIZE */}
+                      <motion.div
+                        className="absolute inset-0 flex flex-col justify-center items-center"
+                        initial={{ scale: 0, opacity: 0, y: 40 }}
+                        animate={{
+                          scale: [0, 0, 1.1, 1],
+                          opacity: [0, 0, 1, 1],
+                          y: [40, 40, 0, 0],
+                        }}
+                        transition={{
+                          duration: 2,
+                          times: [0, 0.5, 0.8, 1],
+                          ease: "easeOut",
+                        }}
+                      >
+                        {/* Code editor*/}
+                        <div className="bg-gray-900 rounded-3xl shadow-2xl border-4 border-white p-4 w-[420px] h-[400px] relative overflow-hidden">
+                          {/* Editor header */}
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="flex space-x-2">
+                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                            </div>
+                            <div className="text-gray-400 text-xs font-mono">
+                              main.cs
+                            </div>
+                          </div>
+
+                          {/* Code content with typing effect */}
+                          <div className="h-[calc(100%-3rem)] overflow-hidden">
+                            {/* Adjusted height calculation to account for header and padding */}
+                            <CodeTypingAnimation />
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Loading dots */}
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 3, duration: 0.5 }}
+                        className="absolute -bottom-6 flex space-x-2"
+                      >
+                        {[...Array(3)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="w-3 h-3 bg-blue-500 rounded-full"
+                            animate={{
+                              scale: [1, 1.5, 1],
+                              opacity: [0.5, 1, 0.5],
+                            }}
+                            transition={{
+                              duration: 1,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                              ease: "easeInOut",
+                            }}
+                          />
+                        ))}
+                      </motion.div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.9, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="group"
+                    >
+                      <Image
+                        src="/images/banner/banner-image.jpg"
+                        alt="Document to Code Illustration"
+                        width={420}
+                        height={220}
+                        className="rounded-3xl shadow-2xl transition-transform duration-300 group-hover:scale-105 object-cover bg-gray-100 border-4 border-white"
+                        onError={(e) => {
+                          e.currentTarget.src = "/images/logo/logo.svg";
+                        }}
+                        priority
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-32 h-2 bg-gradient-to-r from-primary to-blue-400 rounded-full opacity-60 blur-sm" />
               </div>
             </div>
@@ -351,7 +361,6 @@ const Hero = () => {
               <div className="flex flex-col gap-8 mt-2">
                 <div className="flex flex-row gap-6 items-center justify-center">
                   <div className="flex flex-col relative w-full">
-                    {/* <label className="font-semibold text-base text-gray-700 mb-2 block">PCD File</label> */}
                     <UploadFileInput
                       label={file1 ? file1.name : "Upload PCD File"}
                       inputClassName="w-full h-12 rounded-xl"
@@ -368,44 +377,28 @@ const Hero = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-row gap-4 items-center justify-center mt-5">
-                {/* <button
+                <LoadingButton
                   type="submit"
-                  className="bg-green-600 py-3 px-3 rounded-lg text-base border border-green-600 hover:bg-green-700 hover:text-white transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 shadow"
-                  disabled={loadingGenerate}
-                  aria-busy={loadingGenerate}
+                  loading={loadingGenerate}
+                  loadingText="Generating"
+                  className="ml-2 flex items-center"
                 >
-                  Generate Project
-                  {loadingGenerate && (
-                    <span className="ml-2 flex items-center animate-spin">
-                      <span className="w-5 h-5 flex items-center justify-center">
-                        <Loader />
-                      </span>
-                    </span>
-                  )}
-                </button> */}
-                <LoadingButton  type="submit" loading={loadingGenerate} loadingText='Generating' className='ml-2 flex items-center'>Generate Code</LoadingButton>
-                {/* <button
+                  Generate Code
+                </LoadingButton>
+                <LoadingButton
                   type="button"
-                  className={`py-3 px-6 rounded-lg text-base border transition-colors flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-blue-500 shadow
-                    ${
-                      projectGenerated
-                        ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:text-white"
-                        : "bg-gray-400 border-gray-400 text-white cursor-not-allowed"
-                    }`}
+                  buttonColor="grey"
                   disabled={!projectGenerated || loadingDownload}
+                  loadingText="Downloading"
+                  className={`ml-2 flex items-center ${
+                    projectGenerated
+                      ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:text-white"
+                      : "bg-gray-400 border-gray-400 text-white cursor-not-allowed"
+                  }`}
                   onClick={handleDownloadProject}
-                  aria-busy={loadingDownload}
-                > */}
-                <LoadingButton  type="button" buttonColor="grey" disabled={!projectGenerated || loadingDownload} loadingText='Downloading' className='ml-2 flex items-center' onClick={handleDownloadProject}>Download Project</LoadingButton>
-                  {/* Download Project
-                  {loadingDownload && (
-                    <span className="ml-2 flex items-center animate-spin">
-                      <span className="w-5 h-5 flex items-center justify-center">
-                        <Loader />
-                      </span>
-                    </span>
-                  )}
-                </button> */}
+                >
+                  Download Project
+                </LoadingButton>
               </div>
 
               {/* Success Modal Popup */}
@@ -457,7 +450,7 @@ const Hero = () => {
       </div>
 
       {/* Footer / Tip Section */}
-      <footer className="w-full text-center py-6 bg-white border-t border-gray-200 mt-auto shadow-inner">
+      <footer className="w-full text-center py-6 bg-white/30 backdrop-blur-md rounded-xl border border-white/20 shadow-lg p-6 border-t border-gray-200 mt-auto shadow-inner">
         <span className="text-gray-500 text-sm">
           <span className="font-medium text-primary">Tip:</span> You can always
           download your generated project after signing in. &nbsp;|&nbsp;{" "}

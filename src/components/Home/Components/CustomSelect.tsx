@@ -2,8 +2,8 @@
 
 const options = [
   { value: "C#", label: "C#", disabled: false },
-  { value: "Python", label: "Python", disabled: false },
-  { value: "JavaScript", label: "JavaScript", disabled: false },
+  // { value: "Python", label: "Python", disabled: true },
+  // { value: "JavaScript", label: "JavaScript", disabled: true },
   { value: "Java", label: "Java", disabled: true },
 ];
 

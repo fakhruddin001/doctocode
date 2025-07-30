@@ -7,7 +7,11 @@ import toast from "react-hot-toast";
 import Logo from "@/components/Layout/Header/Logo"
 import Loader from "@/components/Common/Loader";
 
-const Signin = () => {
+interface SigninProps {
+  onClose: () => void;
+}
+
+const Signin = ({ onClose }: SigninProps) => {
   const router = useRouter();
 
   const [loginData, setLoginData] = useState({
@@ -20,23 +24,29 @@ const Signin = () => {
   const loginUser = (e: any) => {
     e.preventDefault();
     setLoading(true);
-    // Hardcoded credentials
     const hardcodedEmail = "admin@bureauveritas.com";
     const hardcodedPassword = "password123";
-    if (
-      loginData.email === hardcodedEmail &&
-      loginData.password === hardcodedPassword
-    ) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("isLoggedIn", "true");
+    console.log("Entered email:", loginData.email);
+    console.log("Entered password:", loginData.password);
+    setTimeout(() => {
+      if (
+        loginData.email === hardcodedEmail &&
+        loginData.password === hardcodedPassword
+      ) {
+        console.log("Login successful, setting isLoggedIn and closing popup");
+        if (typeof window !== "undefined") {
+          localStorage.setItem("isLoggedIn", "true");
+        }
+        toast.success("Login successful");
+        setLoading(false);
+        if (onClose) onClose();
+        router.refresh();
+      } else {
+        console.log("Invalid credentials");
+        toast.error("Invalid credentials");
+        setLoading(false);
       }
-      toast.success("Login successful");
-      setLoading(false);
-      router.refresh(); // Ensures client-side navigation updates
-    } else {
-      toast.error("Invalid credentials");
-      setLoading(false);
-    }
+    }, 2000);
   };
 
   return (
@@ -45,7 +55,7 @@ const Signin = () => {
         <Logo />
       </div>
 
-      <form onSubmit={loginUser}>
+      <form onSubmit={loginUser} style={{ opacity: loading ? 0.7 : 1, pointerEvents: loading ? 'none' : 'auto' }}>
         <div className="mb-[22px]">
           <input
             type="email"
@@ -71,22 +81,23 @@ const Signin = () => {
         <div className="mb-9">
           <button
             type="submit"
-            className="bg-gradient-to-r from-primary to-blue-400 w-full py-3 rounded-xl text-lg font-semibold border-none text-white hover:from-white hover:to-white hover:text-primary transition-all duration-200 shadow-lg focus:ring-2 focus:ring-primary"
+            className="bg-gradient-to-r from-primary to-blue-400 w-full py-3 rounded-xl text-lg font-semibold border-none text-white hover:from-white hover:to-white hover:text-primary transition-all duration-200 shadow-lg focus:ring-2 focus:ring-primary flex items-center justify-center"
+            disabled={loading}
           >
-            Sign In {loading && <Loader />}
+            {loading ? <Loader /> : 'Sign In'}
           </button>
         </div>
       </form>
 
       <Link
-        href="/forgot-password"
+        href="#"
         className="mb-2 inline-block text-blue-500 hover:text-primary transition-colors duration-200"
       >
         Forgot Password?
       </Link>
       <p className="text-body-secondary text-gray text-base">
         <span className="text-gray-700">Not a member yet?</span>{" "}
-        <Link href="/" className="text-blue-500 hover:text-primary underline transition-colors duration-200">
+        <Link href="#" className="text-blue-500 hover:text-primary underline transition-colors duration-200">
           Sign Up
         </Link>
       </p>
