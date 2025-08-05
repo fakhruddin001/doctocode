@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { reqData } from "./req";
-import { createDockerfile, createProjectFiles, zipFiles } from "./helper";
+import { createProjectFiles, zipFiles } from "./helper";
 
 // POST: Accept JSON and return zip of the project files
 export async function POST(req: NextRequest) {
@@ -12,8 +12,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     const files = await createProjectFiles(jsonData);
-    files["Dockerfile"] = createDockerfile({});
-    
+
     const zipBuffer = await zipFiles(files);
     return new NextResponse(zipBuffer, {
       status: 200,
