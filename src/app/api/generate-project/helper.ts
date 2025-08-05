@@ -8,11 +8,12 @@ export const generateExpressApp = (jsonData: any): string => {
     jsonData.api && jsonData.api.endpoints ? jsonData.api.endpoints : [];
   let routes = `const express = require('express');\nconst app = express();\napp.use(express.json());\n`;
   endpoints.forEach((ep: any) => {
-    routes += `\napp.${ep.method.toLowerCase()}('${
+    console.log(ep);
+    routes += `\napp.${ep.urlType.toLowerCase()}('${
       jsonData.api.basePath || ""
     }${ep.path}', (req, res) => {\n  // ${ep.description}\n  res.status(${
-      ep.response.success.status
-    }).json({ message: '${ep.response.success.message || "OK"}' });\n});\n`;
+        200
+    }).json({ message: '${"OK"}' });\n});\n`;
   });
   routes += `\napp.listen(3000,()=>console.log('API running on 3000'));`;
   return routes;
@@ -26,6 +27,12 @@ const generateCreateTableSQL = (jsonData: any): { [key: string]: string } => {
     let sql = `CREATE TABLE ${table.schema ? table.schema + '.' : ''}${table.name} (\n`;
     const cols = table.columns.map((col: any) => {
       let colDef = `${col.name} ${col.type}`;
+      if(col.type=='string'){
+        colDef= `${col.name} VARCHAR(100)`;
+      }
+      if(col.type=='bool'){
+        colDef= `${col.name} BIT`;
+      }
       if (col.primaryKey) colDef += ' PRIMARY KEY';
       if (col.autoIncrement) colDef += ' AUTOINCREMENT';
       if (col.unique) colDef += ' UNIQUE';
