@@ -9,6 +9,8 @@ export { zipFiles } from './generators/zipUtils';
 import { generateCreateTableSqlFiles } from './generators/sqlGenerator';
 import { generateExpressApp } from './generators/expressGenerator';
 import { createPackageJson } from './generators/packageJsonGenerator';
+import { createReadme } from './generators/readmeGenerator';
+import { createDockerfile } from './helper';
 
 
 export const createProjectFiles = async (projectSpec: any) => {
@@ -16,5 +18,7 @@ export const createProjectFiles = async (projectSpec: any) => {
   Object.assign(fileMap, generateExpressApp(projectSpec));
   fileMap["package.json"] = createPackageJson(projectSpec);
   Object.assign(fileMap, generateCreateTableSqlFiles(projectSpec));
+  fileMap["README.md"] = createReadme(projectSpec);
+  fileMap["Dockerfile"] = createDockerfile(projectSpec);
   return fileMap;
 };
