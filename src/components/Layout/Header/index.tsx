@@ -81,10 +81,10 @@ const Header: React.FC = () => {
       ref={navbarRef}
       style={{
         boxShadow: sticky ? "0 2px 10px rgba(0, 0, 0, 0.1)" : "none",
-      borderBottom: "1px solid transparent", /* Or desired thickness */
-      borderImage: "linear-gradient(to right, transparent, gray, transparent) 2",
-      /* Adjust colors and direction as needed */
-    
+        borderBottom: "1px solid transparent" /* Or desired thickness */,
+        borderImage:
+          "linear-gradient(to right, transparent, gray, transparent) 2",
+        /* Adjust colors and direction as needed */
       }}
     >
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md flex items-center justify-between px-4 rounded-lg min-h-[52px] relative">
@@ -93,7 +93,19 @@ const Header: React.FC = () => {
         </div>
         {/* App Name Absolutely Centered (Desktop Only) */}
         <div className="hidden lg:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none select-none">
-          <span className="text-3xl font-extrabold text-primary tracking-wider drop-shadow-md uppercase">{`< `} <span className="text-blue-500">DOC TO CODE</span>{` />`}</span>
+          <span className="text-3xl font-extrabold text-primary tracking-wider drop-shadow-md uppercase">
+            <Image
+              src="/images/logo/codient-logo.png"
+              alt="Document to Code Illustration"
+              width={250}
+              height={50}
+              className="rounded-3xl shadow-2xl object-cover bg-gray-100 border-4 border-white"
+              onError={(e) => {
+                e.currentTarget.src = "/images/logo/logo.svg";
+              }}
+              priority
+            />
+          </span>
         </div>
         <nav className="hidden lg:flex flex-grow items-center gap-8 justify-center">
           {headerData.map((item, index) => (
@@ -105,7 +117,7 @@ const Header: React.FC = () => {
           <Link
             href="#"
             className="hidden lg:block font-semibold text-lg py-2 px-8 rounded-full shadow-lg border border-primary bg-primary text-white relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 hover:scale-105 hover:brightness-110"
-            style={{ boxShadow: '0 2px 16px 0 rgba(34,197,94,0.10)' }}
+            style={{ boxShadow: "0 2px 16px 0 rgba(34,197,94,0.10)" }}
             onClick={() => {
               setIsSignInOpen(true);
             }}
@@ -118,7 +130,13 @@ const Header: React.FC = () => {
               <div
                 ref={signInRef}
                 className="w-full max-w-md overflow-hidden rounded-2xl px-10 py-10 text-center bg-white/90 backdrop-blur-xl shadow-2xl border border-primary transition-transform duration-200 hover:scale-105"
-                style={{ minHeight: '340px', border: '1.5px solid #bae6fd', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.20)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}
+                style={{
+                  minHeight: "340px",
+                  border: "1.5px solid #bae6fd",
+                  boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.20)",
+                  backdropFilter: "blur(24px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                }}
               >
                 <button
                   onClick={() => setIsSignInOpen(false)}
@@ -131,7 +149,7 @@ const Header: React.FC = () => {
                   />
                 </button>
                 <div className="mt-6">
-                  <Signin  onClose={() => setIsSignInOpen(false)} />
+                  <Signin onClose={() => setIsSignInOpen(false)} />
                 </div>
               </div>
             </div>
@@ -141,7 +159,13 @@ const Header: React.FC = () => {
               <div
                 ref={signUpRef}
                 className="w-full max-w-md overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl px-10 py-10 text-center shadow-2xl border border-primary transition-transform duration-200 hover:scale-105"
-                style={{ minHeight: '340px', border: '1.5px solid #bae6fd', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.20)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}
+                style={{
+                  minHeight: "340px",
+                  border: "1.5px solid #bae6fd",
+                  boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.20)",
+                  backdropFilter: "blur(24px) saturate(180%)",
+                  WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                }}
               >
                 <button
                   onClick={() => setIsSignUpOpen(false)}
@@ -175,7 +199,9 @@ const Header: React.FC = () => {
       )}
       <div
         ref={mobileMenuRef}
-        className={`lg:hidden fixed top-0 right-0 h-full w-full bg-darkmode shadow-lg transform transition-transform duration-300 max-w-xs ${navbarOpen ? "translate-x-0" : "translate-x-full"} z-50 rounded-l-xl`}
+        className={`lg:hidden fixed top-0 right-0 h-full w-full bg-darkmode shadow-lg transform transition-transform duration-300 max-w-xs ${
+          navbarOpen ? "translate-x-0" : "translate-x-full"
+        } z-50 rounded-l-xl`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-lg font-bold text-midnight_text dark:text-midnight_text">

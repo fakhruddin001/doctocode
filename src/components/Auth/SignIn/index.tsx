@@ -24,7 +24,7 @@ const Signin = ({ onClose }: SigninProps) => {
   const loginUser = (e: any) => {
     e.preventDefault();
     setLoading(true);
-    const hardcodedEmail = "admin@bureauveritas.com";
+    const hardcodedEmail = "fakhruddin.n@bureauveritas.com";
     const hardcodedPassword = "password123";
     console.log("Entered email:", loginData.email);
     console.log("Entered password:", loginData.password);
