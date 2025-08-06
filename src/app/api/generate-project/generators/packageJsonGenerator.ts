@@ -19,7 +19,7 @@ export const createPackageJson = (projectSpec: any) => {
     dev: scripts.dev || `nodemon ${main}`,
     ...scripts,
   };
-  const baseDependencies = { express: "^5.1.0", dotenv: "^17.2.1", ...dependencies };
+  const baseDependencies = { express: "^5.1.0", dotenv: "^17.2.1", tedious: "^16.4.0", sequelize: "^6.35.0",...dependencies };
   const baseDevDependencies = { nodemon: "^3.1.10", ...devDependencies };
 
   // Add testing dependencies and scripts if requested
