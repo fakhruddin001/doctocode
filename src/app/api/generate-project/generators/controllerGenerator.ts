@@ -49,8 +49,8 @@ const groupEndpointsByController = (endpoints: any[]) => {
 
 const findRelatedTable = (controllerName: string, tables: any[]) => {
   return tables.find(table => 
-    table.name.toLowerCase().includes(controllerName.toLowerCase()) ||
-    controllerName.toLowerCase().includes(table.name.toLowerCase())
+    table?.name?.toLowerCase().includes(controllerName?.toLowerCase()) ||
+    controllerName?.toLowerCase().includes(table?.name?.toLowerCase())
   );
 };
 
@@ -62,7 +62,7 @@ const generateControllerContent = (controllerName: string, endpoints: any[], rel
   
   // Generate methods based on endpoints
   endpoints.forEach(endpoint => {
-    const method = endpoint.urlType.toLowerCase();
+    const method = endpoint?.urlType?.toLowerCase();
     const methodName = generateMethodName(method, endpoint.path);
     
     content += `\n  async ${methodName}(req, res, next) {\n`;
@@ -335,7 +335,7 @@ const getPrimaryKeyField = (table: any): string => {
   if (!table || !table.columns) return 'id';
   
   const pkColumn = table.columns.find((col: any) => 
-    col.name.toLowerCase().includes('id') && 
+    col?.name?.toLowerCase().includes('id') && 
     table.columns.indexOf(col) === 0
   );
   
