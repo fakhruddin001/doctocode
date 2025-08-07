@@ -8,18 +8,14 @@ import Image from "next/image";
 import HeaderLink from "../Header/Navigation/HeaderLink";
 import MobileHeaderLink from "../Header/Navigation/MobileHeaderLink";
 import Signin from "@/components/Auth/SignIn";
-import SignUp from "@/components/Auth/SignUp";
-import { useTheme } from "next-themes";
 import { Icon } from "@iconify/react/dist/iconify.js";
 
 const Header: React.FC = () => {
-  const pathUrl = usePathname();
-  const { theme, setTheme } = useTheme();
 
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [sticky, setSticky] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(false);
 
   const navbarRef = useRef<HTMLDivElement>(null);
   const signInRef = useRef<HTMLDivElement>(null);
@@ -36,12 +32,6 @@ const Header: React.FC = () => {
       !signInRef.current.contains(event.target as Node)
     ) {
       setIsSignInOpen(false);
-    }
-    if (
-      signUpRef.current &&
-      !signUpRef.current.contains(event.target as Node)
-    ) {
-      setIsSignUpOpen(false);
     }
     if (
       mobileMenuRef.current &&
@@ -63,15 +53,15 @@ const Header: React.FC = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("open-login-modal", handleOpenLoginModal);
     };
-  }, [navbarOpen, isSignInOpen, isSignUpOpen]);
+  }, [navbarOpen, isSignInOpen]);
 
   useEffect(() => {
-    if (isSignInOpen || isSignUpOpen || navbarOpen) {
+    if (isSignInOpen  || navbarOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-  }, [isSignInOpen, isSignUpOpen, navbarOpen]);
+  }, [isSignInOpen, navbarOpen]);
 
   return (
     <header
@@ -150,35 +140,6 @@ const Header: React.FC = () => {
                 </button>
                 <div className="mt-6">
                   <Signin onClose={() => setIsSignInOpen(false)} />
-                </div>
-              </div>
-            </div>
-          )}
-          {isSignUpOpen && (
-            <div className="fixed inset-0 w-full min-h-screen bg-black bg-opacity-50 z-50 flex items-center justify-center">
-              <div
-                ref={signUpRef}
-                className="w-full max-w-md overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl px-10 py-10 text-center shadow-2xl border border-primary transition-transform duration-200 hover:scale-105"
-                style={{
-                  minHeight: "340px",
-                  border: "1.5px solid #bae6fd",
-                  boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.20)",
-                  backdropFilter: "blur(24px) saturate(180%)",
-                  WebkitBackdropFilter: "blur(24px) saturate(180%)",
-                }}
-              >
-                <button
-                  onClick={() => setIsSignUpOpen(false)}
-                  className="absolute top-4 right-4 bg-white rounded-full p-2 shadow-lg border border-blue-200 hover:bg-blue-100 hover:text-primary transition-colors duration-200 flex items-center justify-center"
-                  aria-label="Close Sign Up Modal"
-                >
-                  <Icon
-                    icon="tabler:currency-xrp"
-                    className="text-white hover:text-primary text-2xl inline-block me-2"
-                  />
-                </button>
-                <div className="mt-6">
-                  <SignUp />
                 </div>
               </div>
             </div>
