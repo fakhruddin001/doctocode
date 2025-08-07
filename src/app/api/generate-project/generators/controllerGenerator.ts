@@ -1,3 +1,35 @@
+interface ColumnMatch {
+  tableName: string;
+  fieldMatchScore: number;
+  nameMatchScore: number;
+  totalScore: number;
+  matchedFields: string[];
+  totalFields: number;
+  matchPercentage: number;
+  nameMatches: string[];
+}
+
+interface Column {
+  name: string;
+  type: string;
+  isRequired: boolean;
+}
+
+interface Table {
+  name: string;
+  schema: string;
+  columns: Column[];
+}
+
+interface Endpoint {
+  path: string;
+  name: string;
+  urlType: string;
+  queryParams: string[];
+  response?: Record<string, string>[];
+  payload?: Record<string, string>[];
+}
+
 export const generateControllers = (apiSpec: any): { [key: string]: string } => {
   const endpoints = apiSpec?.api?.endpoints || [];
   const tables = apiSpec?.tables || [];
@@ -7,7 +39,9 @@ export const generateControllers = (apiSpec: any): { [key: string]: string } => 
   const endpointsByController = groupEndpointsByController(endpoints);
 
   for (const [controllerName, controllerEndpoints] of Object.entries(endpointsByController)) {
-    const relatedTable = findRelatedTable(controllerName, tables);
+    // Use tableFetcher for the first endpoint to find the best matching table
+    const firstEndpoint = controllerEndpoints[0];
+    const relatedTable = tableFetcher(firstEndpoint, tables);
     const controllerContent = generateControllerContent(controllerName, controllerEndpoints, relatedTable);
     controllers[`controllers/${controllerName}Controller.js`] = controllerContent;
   }
@@ -33,10 +67,10 @@ export const generateMiddlewares = (apiSpec: any): { [key: string]: string } => 
   return middlewares;
 };
 
-const groupEndpointsByController = (endpoints: any[]) => {
+const groupEndpointsByController = (endpoints: any[]): { [key: string]: any[] } => {
   const grouped: { [key: string]: any[] } = {};
   
-  endpoints.forEach(endpoint => {
+  endpoints.forEach((endpoint: any) => {
     const controllerName = endpoint.name || 'default';
     if (!grouped[controllerName]) {
       grouped[controllerName] = [];
@@ -47,11 +81,130 @@ const groupEndpointsByController = (endpoints: any[]) => {
   return grouped;
 };
 
-const findRelatedTable = (controllerName: string, tables: any[]) => {
-  return tables.find(table => 
-    table.name.toLowerCase().includes(controllerName.toLowerCase()) ||
-    controllerName.toLowerCase().includes(table.name.toLowerCase())
-  );
+const tableFetcher = (endpoint: Endpoint, tables: Table[]): Table | null => {
+  const { path, response, payload } = endpoint;
+  
+  // Extract names from API endpoint URL
+  const urlSegments: string[] = path.toLowerCase()
+    .split('/')
+    .filter((segment: string) => segment && !segment.includes('{') && !segment.includes('}'))
+    .map((segment: string) => segment.replace(/[^a-z]/g, '')); // Clean up segments
+  
+  // Get all fields from response and payload
+  const endpointFields = new Set<string>();
+  
+  // Add response fields
+  if (response && Array.isArray(response)) {
+    response.forEach((responseObj: Record<string, string>) => {
+      Object.keys(responseObj).forEach((key: string) => {
+        endpointFields.add(key.toLowerCase());
+      });
+    });
+  }
+  
+  // Add payload fields
+  if (payload && Array.isArray(payload)) {
+    payload.forEach((payloadObj: Record<string, string>) => {
+      Object.keys(payloadObj).forEach((key: string) => {
+        endpointFields.add(key.toLowerCase());
+      });
+    });
+  }
+  
+  const tableMatches: ColumnMatch[] = [];
+  
+  // Check each table for matches
+  tables.forEach((table: Table) => {
+    const tableName: string = table.name.toLowerCase();
+    const tableColumns: string[] = table.columns.map((col: Column) => col.name.toLowerCase());
+    
+    // 1. Field-based matching
+    const matchedFields: string[] = [];
+    endpointFields.forEach((field: string) => {
+      const exactMatch: boolean = tableColumns.includes(field);
+      const partialMatch: boolean = tableColumns.some((col: string) => 
+        col.includes(field) || field.includes(col)
+      );
+      
+      if (exactMatch || partialMatch) {
+        matchedFields.push(field);
+      }
+    });
+    
+    const fieldMatchScore: number = matchedFields.length;
+    
+    // 2. Name-based matching between URL segments and table name
+    const nameMatches: string[] = [];
+    urlSegments.forEach((segment: string) => {
+      if (tableName.includes(segment) || segment.includes(tableName)) {
+        nameMatches.push(segment);
+      }
+      // Also check for partial word matches
+      const words: string[] = tableName.split(/(?=[A-Z])|_/).map((w: string) => w.toLowerCase()).filter((w: string) => w.length > 2);
+      words.forEach((word: string) => {
+        if (segment.includes(word) || word.includes(segment)) {
+          if (!nameMatches.includes(segment)) {
+            nameMatches.push(segment);
+          }
+        }
+      });
+    });
+    
+    const nameMatchScore: number = nameMatches.length;
+    
+    // 3. Calculate total score (prioritize field matches, but boost with name matches)
+    const totalScore: number = (fieldMatchScore * 2) + nameMatchScore;
+    const matchPercentage: number = endpointFields.size > 0 ? (fieldMatchScore / endpointFields.size) * 100 : 0;
+    
+    // Only add tables with at least one type of match
+    if (fieldMatchScore > 0 || nameMatchScore > 0) {
+      tableMatches.push({
+        tableName: table.name,
+        fieldMatchScore,
+        nameMatchScore,
+        totalScore,
+        matchedFields,
+        totalFields: endpointFields.size,
+        matchPercentage,
+        nameMatches
+      });
+    }
+  });
+  
+  // Return null if no matches found
+  if (tableMatches.length === 0) {
+    console.log('No table matches found based on field or name comparison');
+    return null;
+  }
+  
+  // Sort by total score (descending), then by field match score, then by match percentage
+  tableMatches.sort((a: ColumnMatch, b: ColumnMatch) => {
+    if (b.totalScore !== a.totalScore) {
+      return b.totalScore - a.totalScore;
+    }
+    if (b.fieldMatchScore !== a.fieldMatchScore) {
+      return b.fieldMatchScore - a.fieldMatchScore;
+    }
+    return b.matchPercentage - a.matchPercentage;
+  });
+  
+  // Return the best matching table
+  const bestMatch: ColumnMatch = tableMatches[0];
+  const matchedTable: Table | undefined = tables.find((table: Table) => table.name === bestMatch.tableName);
+  
+  // Log match details for debugging
+  console.log(`Best table match found:`, {
+    tableName: bestMatch.tableName,
+    fieldMatchScore: bestMatch.fieldMatchScore,
+    nameMatchScore: bestMatch.nameMatchScore,
+    totalScore: bestMatch.totalScore,
+    matchPercentage: `${bestMatch.matchPercentage.toFixed(1)}%`,
+    matchedFields: bestMatch.matchedFields,
+    nameMatches: bestMatch.nameMatches,
+    urlSegments: urlSegments
+  });
+  
+  return matchedTable || null;
 };
 
 const generateControllerContent = (controllerName: string, endpoints: any[], relatedTable: any): string => {
