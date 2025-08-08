@@ -46,6 +46,18 @@ const Hero = () => {
     }
   };
 
+  const generateNodeProject = async (req: any) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/generate-project`,
+        { data: req },
+        { responseType: "blob" }
+      );
+      handleDownloadProject(response.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
   const handleGenerateProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     let valid = true;
@@ -88,18 +100,22 @@ const Hero = () => {
 
     const formData = new FormData();
     file1 && formData.append("docFile", file1);
-
     try {
       const response = await axios.post(
-        `${apiUrl}Builder?ProjectName=${projectName}`,
+        `${apiUrl}Builder?ProjectName=${projectName}&isCSharp=${false}`,
         formData,
+
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
-      await handleDownloadProject();
+      if(selectedLanguage === "node"){
+        await generateNodeProject(response.data);
+      }else{
+        await handleDownloadProject(null);
+      }
       setLoadingGenerate(false);
       setFormSubmitted(true);
       setProjectGenerated(true);
@@ -111,16 +127,18 @@ const Hero = () => {
     }
   };
 
-  const handleDownloadProject = async () => {
+  const handleDownloadProject = async (blob:any) => {
     setLoadingDownload(true);
+    let url = window.URL.createObjectURL(new Blob([blob]));
+    if(blob===null) {
     const savedPath = `Download/folder?folderPath=C:\\Data\\${projectName}`;
     const response = await axios.get(`${apiUrl}${savedPath}`, {
       responseType: "blob",
     });
-
+    url= window.URL.createObjectURL(new Blob([response.data]));
+  }
     const fileName = projectName;
     // Create a temporary anchor element to trigger the download
-    const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", `${fileName}.zip`);

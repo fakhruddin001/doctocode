@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
         { error: "No JSON data provided" },
         { status: 400 }
       );
-    const files = await createProjectFiles(jsonData);
+    const files = await createProjectFiles(jsonData.data || {});
 
   const zipBuffer = await zipFiles(files);
   return new NextResponse(zipBuffer.slice().buffer, {
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: any) {
+    console.log("Error in POST /generate-project:", err);
     return NextResponse.json(
       { error: err.message || "Internal Server Error" },
       { status: 500 }
