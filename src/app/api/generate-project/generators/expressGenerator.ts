@@ -59,7 +59,7 @@ export const generateExpressApp = (
   routesContent += `module.exports = router;\n`;
 
   // Updated entry point with error handling middleware
-  const entryPointContent = `require('dotenv').config();\nconst { sequelize } = require('./models');\nconst express = require('express');\nconst app = express();\nconst routes = require('./routes');\nconst errorHandler = require('./middlewares/errorHandler');\n\napp.use(express.json());\napp.use('/', routes);\n\n// 404 handler\napp.use((req, res, next) => {\n  res.status(404).json({ error: 'Not Found' });\n});\n\n// Global error handler\napp.use(errorHandler);\n\nconst PORT = process.env.PORT || 3000;\nsequelize.sync({force:true}).then(()=>{app.listen(PORT, () => console.log('API running on ' + PORT));})\n`;
+  const entryPointContent = `require('dotenv').config();\nconst { sequelize } = require('./models');\nconst express = require('express');\nconst app = express();\nconst routes = require('./routes');\nconst errorHandler = require('./middlewares/errorHandler');\n\napp.use(express.json());\napp.use('/', routes);\n\n// 404 handler\napp.use((req, res, next) => {\n  res.status(404).json({ error: 'Not Found' });\n});\n\n// Global error handler\napp.use(errorHandler);\n\nconst PORT = process.env.PORT || 3000;\nsequelize.sync().then(()=>{app.listen(PORT, () => console.log('API running on ' + PORT));})\n`;
 
   return {
     "index.js": entryPointContent,
