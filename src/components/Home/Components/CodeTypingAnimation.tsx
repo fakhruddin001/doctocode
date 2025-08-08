@@ -8,7 +8,7 @@ interface CodeLine {
 }
 
 interface CodeTypingAnimationProps {
-  isCsharp: string;
+  isCsharp: boolean;
 }
 
 const CodeTypingAnimation: React.FC<CodeTypingAnimationProps>  = ({ isCsharp }: CodeTypingAnimationProps) => {
