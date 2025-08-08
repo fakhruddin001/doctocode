@@ -46,9 +46,7 @@ modelContent += `  tableName: '${tableName}',\n`;
 //   modelContent += `  schema: '${schema}',\n`;
 // }
 modelContent += `  schema: 'dbo',\n`;
-modelContent += `  timestamps: true,\n`;
-modelContent += `  createdAt: 'CreatedDate',\n`;
-modelContent += `  updatedAt: 'ModifiedDate'\n`;
+modelContent += `  timestamps: false,\n`;
 modelContent += `});\n\n`;
     
     modelContent += `module.exports = ${modelName};\n`;
