@@ -2,7 +2,7 @@ const jsonData = {
   project: "EmployeeManagement",
   tables: [
     {
-      name: "Employees",
+      name: "Employee",
       schema: "public",
       columns: [
         {
@@ -29,9 +29,9 @@ const jsonData = {
     basePath: "/api",
     endpoints: [
       {
-        name: "CreateEmployee",
+        name: "Employee",
         method: "POST",
-        path: "/employees",
+        path: "/AddEmployees",
         description: "Add a new employee",
         body: {
           FirstName: "string",
@@ -57,9 +57,9 @@ const jsonData = {
         },
       },
       {
-        name: "GetEmployees",
+        name: "Employee",
         method: "GET",
-        path: "/employees",
+        path: "/GetAllEmployees",
         description: "Retrieve all employees",
         queryParams: ["search", "limit", "offset"],
         logic: {
@@ -72,9 +72,9 @@ const jsonData = {
         },
       },
       {
-        name: "GetEmployeeById",
+        name: "Employee",
         method: "GET",
-        path: "/employees/{id}",
+        path: "/GetEmployeesById/{id}",
         description: "Retrieve employee by ID",
         logic: {
           validate: { exists: "EmployeeID" },
@@ -88,9 +88,9 @@ const jsonData = {
         },
       },
       {
-        name: "UpdateEmployee",
+        name: "Employee",
         method: "PUT",
-        path: "/employees/{id}",
+        path: "/UpdateEmployees/{id}",
         description: "Update employee details",
         body: {
           FirstName: "string",
@@ -117,9 +117,9 @@ const jsonData = {
         },
       },
       {
-        name: "DeleteEmployee",
+        name: "Employee",
         method: "DELETE",
-        path: "/employees/{id}",
+        path: "/DeleteEmployees/{id}",
         description: "Delete employee by ID",
         logic: {
           validate: { exists: "EmployeeID" },
