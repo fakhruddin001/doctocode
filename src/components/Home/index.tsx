@@ -237,7 +237,7 @@ const Hero = () => {
                           {/* Code content with typing effect */}
                           <div className="h-[calc(100%-3rem)] overflow-hidden">
                             {/* Adjusted height calculation to account for header and padding */}
-                            <CodeTypingAnimation />
+                            <CodeTypingAnimation isCsharp={selectedLanguage}/>
                           </div>
                         </div>
                       </motion.div>
