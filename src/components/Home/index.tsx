@@ -99,6 +99,7 @@ const Hero = () => {
           },
         }
       );
+      await handleDownloadProject();
       setLoadingGenerate(false);
       setFormSubmitted(true);
       setProjectGenerated(true);
@@ -145,13 +146,11 @@ const Hero = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      
       {/* Decorative Accent */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-primary/10 to-blue-200/10 blur-2xl z-0 pointer-events-none" />
       {/* Main Section */}
-      
+
       <div className="container mx-auto lg:max-w-screen-xl md:max-w-screen-md px-2 pt-36 pb-10 flex-1 flex flex-col justify-center relative z-10">
-        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Illustration & Slogan */}
           <div className="col-span-6 flex flex-col items-center justify-center">
@@ -237,7 +236,9 @@ const Hero = () => {
                           {/* Code content with typing effect */}
                           <div className="h-[calc(100%-3rem)] overflow-hidden">
                             {/* Adjusted height calculation to account for header and padding */}
-                            <CodeTypingAnimation isCsharp={selectedLanguage=='C#'?true:false}/>
+                            <CodeTypingAnimation
+                              isCsharp={selectedLanguage == "C#" ? true : false}
+                            />
                           </div>
                         </div>
                       </motion.div>
@@ -313,6 +314,36 @@ const Hero = () => {
               <h1 className="text-4xl lg:text-4xl font-extrabold mb-6 text-primary text-center drop-shadow-lg tracking-tight">
                 Docs In, <span className="text-blue-500">Code Out.</span>
               </h1>
+              <div className="relative w-full">
+                <div className="flex items-center w-full">
+                  <input
+                    type="text"
+                    id="projectName"
+                    name="projectName"
+                    value={projectName}
+                    onChange={(e) => setProjectName(e.target.value)}
+                    className="border w-full h-12 border-primary rounded-xl text-primary font-medium py-3 px-5 bg-white focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 shadow-sm pr-10"
+                    placeholder="Enter your project name"
+                    autoComplete="off"
+                    aria-label="Project Name"
+                  />
+                  <span className="absolute right-3 text-gray-400">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 9V7a5 5 0 0110 0v2M12 14v2m0 0h.01" />
+                    </svg>
+                  </span>
+                </div>
+                <span className="text-red-500 text-xs mt-1 min-h-[20px] block">
+                  {errors.name || "\u00A0"}
+                </span>
+              </div>
               {/* Language & Project Name */}
               <div className="flex flex-col gap-5">
                 <div className="relative w-full">
@@ -325,52 +356,21 @@ const Hero = () => {
                     {errors.language || "\u00A0"}
                   </span>
                 </div>
-                <div className="relative w-full">
-                  <div className="flex items-center w-full">
-                    <input
-                      type="text"
-                      id="projectName"
-                      name="projectName"
-                      value={projectName}
-                      onChange={(e) => setProjectName(e.target.value)}
-                      className="border w-full h-12 border-primary rounded-xl text-primary font-medium py-3 px-5 bg-white focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 shadow-sm pr-10"
-                      placeholder="Enter your project name"
-                      autoComplete="off"
-                      aria-label="Project Name"
-                    />
-                    <span className="absolute right-3 text-gray-400">
-                      <svg
-                        width="20"
-                        height="20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 9V7a5 5 0 0110 0v2M12 14v2m0 0h.01" />
-                      </svg>
-                    </span>
-                  </div>
-                  <span className="text-red-500 text-xs mt-1 min-h-[20px] block">
-                    {errors.name || "\u00A0"}
-                  </span>
-                </div>
-              </div>
-
-              {/* File Uploads */}
-              <div className="flex flex-col gap-8 mt-2">
-                <div className="flex flex-row gap-6 items-center justify-center">
-                  <div className="flex flex-col relative w-full">
-                    <UploadFileInput
-                      label={file1 ? file1.name : "Upload PCD File"}
-                      inputClassName="w-full h-12 rounded-xl"
-                      onChange={(e) => setFile1(e.target.files?.[0] || null)}
-                      aria-label="Upload PCD File"
-                    />
-                    {/* Info icon removed for cleaner UI */}
-                    <span className="text-red-500 text-xs mt-1 min-h-[20px] block">
-                      {errors.file1 || "\u00A0"}
-                    </span>
+                {/* File Uploads */}
+                <div className="flex flex-col gap-8 mt-2">
+                  <div className="flex flex-row gap-6 items-center justify-center">
+                    <div className="flex flex-col relative w-full">
+                      <UploadFileInput
+                        label={file1 ? file1.name : "Upload PCD File"}
+                        inputClassName="w-full h-12 rounded-xl"
+                        onChange={(e) => setFile1(e.target.files?.[0] || null)}
+                        aria-label="Upload PCD File"
+                      />
+                      {/* Info icon removed for cleaner UI */}
+                      <span className="text-red-500 text-xs mt-1 min-h-[20px] block">
+                        {errors.file1 || "\u00A0"}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -383,9 +383,9 @@ const Hero = () => {
                   loadingText="Generating"
                   className="ml-2 flex items-center"
                 >
-                  Generate Code
+                  Generate & Download Project
                 </LoadingButton>
-                <LoadingButton
+                {/* <LoadingButton
                   type="button"
                   buttonColor="grey"
                   disabled={!projectGenerated || loadingDownload}
@@ -398,7 +398,7 @@ const Hero = () => {
                   onClick={handleDownloadProject}
                 >
                   Download Project
-                </LoadingButton>
+                </LoadingButton> */}
               </div>
 
               {/* Success Modal Popup */}
