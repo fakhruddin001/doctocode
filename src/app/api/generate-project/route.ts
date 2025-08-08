@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
       );
     const files = await createProjectFiles(jsonData);
 
-    const zipBuffer = await zipFiles(files);
-    return new NextResponse(zipBuffer, {
+  const zipBuffer = await zipFiles(files);
+  return new NextResponse(zipBuffer.slice().buffer, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
@@ -40,8 +40,8 @@ export async function GET() {
         { status: 400 }
       );
     const files = await createProjectFiles(reqData);
-    const zipBuffer = await zipFiles(files);
-    return new NextResponse(zipBuffer, {
+  const zipBuffer = await zipFiles(files);
+  return new NextResponse(zipBuffer.slice().buffer, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
