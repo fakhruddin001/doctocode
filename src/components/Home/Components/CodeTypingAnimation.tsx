@@ -7,7 +7,11 @@ interface CodeLine {
   indent: number;
 }
 
-const CodeTypingAnimation: React.FC = () => {
+interface CodeTypingAnimationProps {
+  isCsharp: string;
+}
+
+const CodeTypingAnimation: React.FC<CodeTypingAnimationProps>  = ({ isCsharp }: CodeTypingAnimationProps) => {
   const [currentLineIndex, setCurrentLineIndex] = useState<number>(0);
   const [currentCharIndex, setCurrentCharIndex] = useState<number>(0);
   const [displayedLines, setDisplayedLines] = useState<CodeLine[]>([]);
@@ -16,33 +20,59 @@ const CodeTypingAnimation: React.FC = () => {
   // Refs for auto-scroll functionality
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
-const codeLines: CodeLine[] = [
-  { text: 'public class DocumentService : IDocumentService', color: 'text-blue-400', indent: 0 },
-  { text: '{', color: 'text-purple-400', indent: 0 },
-  { text: '    public async Task<string> ProcessDocumentAsync(', color: 'text-blue-400', indent: 1 },
-  { text: '        IFormFile document)', color: 'text-blue-400', indent: 2 },
-  { text: '    {', color: 'text-purple-400', indent: 1 },
-  { text: '        // Parse document content', color: 'text-gray-500', indent: 2 },
-  { text: '        var content = await ExtractTextAsync(document);', color: 'text-green-400', indent: 2 },
-  { text: '', color: 'text-gray-400', indent: 2 },
-  { text: '        // Analyze structure', color: 'text-gray-500', indent: 2 },
-  { text: '        var structure = AnalyzeStructure(content);', color: 'text-yellow-400', indent: 2 },
-  { text: '', color: 'text-gray-400', indent: 2 },
-  { text: '        // Generate code', color: 'text-gray-500', indent: 2 },
-  { text: '        var codeBuilder = new StringBuilder();', color: 'text-cyan-400', indent: 2 },
-  { text: '        foreach (var section in structure.Sections)', color: 'text-pink-400', indent: 2 },
-  { text: '        {', color: 'text-purple-400', indent: 2 },
-  { text: '            codeBuilder.AppendLine(', color: 'text-orange-400', indent: 3 },
-  { text: '                GenerateCodeSection(section));', color: 'text-orange-400', indent: 4 },
-  { text: '        }', color: 'text-purple-400', indent: 2 },
-  { text: '', color: 'text-gray-400', indent: 2 },
-  { text: '        return codeBuilder.ToString();', color: 'text-red-400', indent: 2 },
-  { text: '    }', color: 'text-purple-400', indent: 1 },
-  { text: '}', color: 'text-purple-400', indent: 0 }
-];
-
-  // Auto-scroll function
+  let codeLines: CodeLine[] 
+  if(isCsharp){
+    codeLines= [
+      { text: 'public class DocumentService : IDocumentService', color: 'text-blue-400', indent: 0 },
+      { text: '{', color: 'text-purple-400', indent: 0 },
+      { text: '    public async Task<string> ProcessDocumentAsync(', color: 'text-blue-400', indent: 1 },
+      { text: '        IFormFile document)', color: 'text-blue-400', indent: 2 },
+      { text: '    {', color: 'text-purple-400', indent: 1 },
+      { text: '        // Parse document content', color: 'text-gray-500', indent: 2 },
+      { text: '        var content = await ExtractTextAsync(document);', color: 'text-green-400', indent: 2 },
+      { text: '', color: 'text-gray-400', indent: 2 },
+      { text: '        // Analyze structure', color: 'text-gray-500', indent: 2 },
+      { text: '        var structure = AnalyzeStructure(content);', color: 'text-yellow-400', indent: 2 },
+      { text: '', color: 'text-gray-400', indent: 2 },
+      { text: '        // Generate code', color: 'text-gray-500', indent: 2 },
+      { text: '        var codeBuilder = new StringBuilder();', color: 'text-cyan-400', indent: 2 },
+      { text: '        foreach (var section in structure.Sections)', color: 'text-pink-400', indent: 2 },
+      { text: '        {', color: 'text-purple-400', indent: 2 },
+      { text: '            codeBuilder.AppendLine(', color: 'text-orange-400', indent: 3 },
+      { text: '                GenerateCodeSection(section));', color: 'text-orange-400', indent: 4 },
+      { text: '        }', color: 'text-purple-400', indent: 2 },
+      { text: '', color: 'text-gray-400', indent: 2 },
+      { text: '        return codeBuilder.ToString();', color: 'text-red-400', indent: 2 },
+      { text: '    }', color: 'text-purple-400', indent: 1 },
+      { text: '}', color: 'text-purple-400', indent: 0 }
+    ];
+  }else{
+    codeLines=[
+  { "text": "class DocumentService {", "color": "text-blue-400", "indent": 0 },
+  { "text": "    async processDocumentAsync(", "color": "text-blue-400", "indent": 1 },
+  { "text": "        document)", "color": "text-blue-400", "indent": 2 },
+  { "text": "    {", "color": "text-purple-400", "indent": 1 },
+  { "text": "        // Parse document content", "color": "text-gray-500", "indent": 2 },
+  { "text": "        const content = await this.extractTextAsync(document);", "color": "text-green-400", "indent": 2 },
+  { "text": "", "color": "text-gray-400", "indent": 2 },
+  { "text": "        // Analyze structure", "color": "text-gray-500", "indent": 2 },
+  { "text": "        const structure = this.analyzeStructure(content);", "color": "text-yellow-400", "indent": 2 },
+  { "text": "", "color": "text-gray-400", "indent": 2 },
+  { "text": "        // Generate code", "color": "text-gray-500", "indent": 2 },
+  { "text": "        const codeBuilder = [];", "color": "text-cyan-400", "indent": 2 },
+  { "text": "        for (const section of structure.sections)", "color": "text-pink-400", "indent": 2 },
+  { "text": "        {", "color": "text-purple-400", "indent": 2 },
+  { "text": "            codeBuilder.push(", "color": "text-orange-400", "indent": 3 },
+  { "text": "                this.generateCodeSection(section));", "color": "text-orange-400", "indent": 4 },
+  { "text": "        }", "color": "text-purple-400", "indent": 2 },
+  { "text": "", "color": "text-gray-400", "indent": 2 },
+  { "text": "        return codeBuilder.join('\\n');", "color": "text-red-400", "indent": 2 },
+  { "text": "    }", "color": "text-purple-400", "indent": 1 },
+  { "text": "}", "color": "text-purple-400", "indent": 0 }
+]
+  }
+    
+    // Auto-scroll function
   const scrollToBottom = () => {
     if (containerRef.current && contentRef.current) {
       const container = containerRef.current;

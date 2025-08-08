@@ -42,12 +42,11 @@ export const generateModels = (apiSpec: any): { [key: string]: string } => {
 
 modelContent += `}, {\n`;
 modelContent += `  tableName: '${tableName}',\n`;
-if (schema && schema !== 'dbo') {  // 'dbo' is default schema in SQL Server
-  modelContent += `  schema: '${schema}',\n`;
-}
-modelContent += `  timestamps: true,\n`;
-modelContent += `  createdAt: 'CreatedDate',\n`;
-modelContent += `  updatedAt: 'ModifiedDate'\n`;
+// if (schema && schema !== 'dbo') {  // 'dbo' is default schema in SQL Server
+//   modelContent += `  schema: '${schema}',\n`;
+// }
+modelContent += `  schema: 'dbo',\n`;
+modelContent += `  timestamps: false,\n`;
 modelContent += `});\n\n`;
     
     modelContent += `module.exports = ${modelName};\n`;
@@ -90,7 +89,7 @@ const sequelize = new Sequelize(
   process.env.DB_PASS || 'password',
   {
     host: process.env.DB_HOST || 'localhost',
-    dialect: 'postgres',
+    dialect: 'mssql',
     logging: false
   }
 );

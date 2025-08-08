@@ -7,7 +7,7 @@ export const createPackageJson = (projectSpec: any) => {
     description = "",
     author = "",
     license = "MIT",
-    testing = false,
+    testing = true,
     scripts = {},
     dependencies = {},
     devDependencies = {},
