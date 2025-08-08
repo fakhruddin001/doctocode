@@ -9,7 +9,7 @@ export const generateExpressApp = (
   const endpoints = apiSpec?.api?.endpoints || [];
 
   // .env file content
-  const envContent = `PORT=4000\nDB_NAME='SMAXProdDashboard'\nDB_USER='etlunidashbrd'\nDB_PASS='zxQaL7#dbo'\nDB_HOST='sql-sdp-feu-pr.bureauveritas.com'\n`;
+  const envContent = `PORT=4000\nDB_NAME=\nDB_USER=\nDB_PASS=\nDB_HOST=\n`;
 
   // routes/index.js content
   let routesContent = `const express = require('express');\nconst router = express.Router();\n`;
